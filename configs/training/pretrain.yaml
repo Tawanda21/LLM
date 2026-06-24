@@ -1,0 +1,35 @@
+# Pre-training configuration
+# Effective batch size = batch_size × gradient_accumulation_steps × n_gpus
+# Default: 8 × 4 × 1 = 32 sequences × 2048 tokens = 65 536 tokens / step
+
+max_steps: 10000
+batch_size: 8
+gradient_accumulation_steps: 4
+
+# Optimiser (Chinchilla-style AdamW)
+lr: 3.0e-4
+weight_decay: 0.1
+beta1: 0.9
+beta2: 0.95
+eps: 1.0e-8
+grad_clip: 1.0
+
+# LR schedule
+warmup_steps: 200 # ~2 % of max_steps
+min_lr_ratio: 0.1 # floor = 10 % of peak LR
+
+# Logging & saving
+log_every: 10
+eval_every: 500
+save_every: 1000
+
+# Paths
+checkpoint_dir: checkpoints
+run_name: pretrain-small-tinystories
+
+# Hardware
+mixed_precision: bf16 # bf16 is fastest on Ampere+ (RTX 30xx / 40xx)
+
+# W&B (set use_wandb: true and fill in project to enable)
+use_wandb: false
+wandb_project: llm-from-scratch

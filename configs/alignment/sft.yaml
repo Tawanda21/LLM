@@ -1,0 +1,37 @@
+# SFT-specific alignment config
+# Used when fine-tuning the pre-trained model on instruction data
+# before running RLHF / DPO in Phase 4.
+
+max_steps: 1000
+batch_size: 4
+gradient_accumulation_steps: 4
+
+lr: 2.0e-4
+weight_decay: 0.0
+beta1: 0.9
+beta2: 0.999
+eps: 1.0e-8
+grad_clip: 1.0
+
+warmup_steps: 30
+min_lr_ratio: 0.0
+
+log_every: 5
+eval_every: 100
+save_every: 200
+
+checkpoint_dir: checkpoints/alignment/sft
+run_name: sft-alignment
+
+mixed_precision: bf16
+use_wandb: false
+wandb_project: llm-from-scratch
+
+# LoRA (set use_lora: false to fine-tune all parameters)
+use_lora: true
+lora_r: 8
+lora_alpha: 16
+lora_dropout: 0.05
+target_modules:
+  - wq
+  - wv

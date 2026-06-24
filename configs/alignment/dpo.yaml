@@ -1,0 +1,31 @@
+# DPO alignment configuration
+# Run after SFT fine-tuning. Load the SFT model as both policy and reference.
+
+# Core DPO
+beta: 0.1 # KL penalty — lower allows more deviation from reference
+
+# Training
+max_steps: 1000
+batch_size: 2
+lr: 5.0e-5 # much lower than SFT; DPO is sensitive to learning rate
+weight_decay: 0.0
+beta1: 0.9
+beta2: 0.999
+eps: 1.0e-8
+grad_clip: 1.0
+warmup_steps: 50
+
+# Sequence length
+max_seq_len: 512
+
+# Logging / saving
+log_every: 10
+save_every: 200
+checkpoint_dir: checkpoints/dpo
+
+# Hardware
+mixed_precision: bf16
+
+# W&B
+use_wandb: false
+wandb_project: llm-from-scratch

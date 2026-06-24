@@ -1,0 +1,50 @@
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── Virtual environment ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Editor ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ── Testing / coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# TODO  Add rules to ignore the CONTENTS of checkpoints/ and data/
+#       but keep the directories themselves tracked (via .gitkeep).
+#
+#       The pattern to ignore everything inside a folder but keep the folder:
+#         folder_name/*          ← ignore all files inside
+#         !folder_name/.gitkeep  ← except the .gitkeep marker
+#
+#       Add two such pairs below — one for checkpoints/ and one for data/.
+
+# checkpoints/ — model weights, tokenizer JSON, adapter files
+checkpoints/*
+!checkpoints/.gitkeep
+
+# data/ — downloaded datasets, raw text files
+data/*
+!data/.gitkeep
+
+# ── Weights & Biases ─────────────────────────────────────────────────────────
+wandb/

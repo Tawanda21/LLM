@@ -1,0 +1,71 @@
+# ============================================================
+# LLM From Scratch — Requirements
+# Python >= 3.10 recommended
+# Install: pip install -r requirements.txt
+# ============================================================
+
+# ------------------------------------------------------------
+# Core Deep Learning
+# ------------------------------------------------------------
+torch>=2.3.0                  # PyTorch — primary framework
+torchvision>=0.18.0           # Useful tensor/image utilities
+numpy>=1.26.0                 # Numerical computing backbone
+einops>=0.7.0                 # Readable tensor operations (rearrange, repeat, etc.)
+
+# ------------------------------------------------------------
+# Tokenization
+# ------------------------------------------------------------
+tokenizers>=0.19.0            # HuggingFace fast tokenizers (BPE, WordPiece, Unigram)
+sentencepiece>=0.2.0          # SentencePiece (used by LLaMA, T5, etc.)
+tiktoken>=0.7.0               # OpenAI BPE tokenizer (GPT-2 / GPT-4 vocab reference)
+
+# ------------------------------------------------------------
+# Datasets & Data Utilities
+# ------------------------------------------------------------
+datasets>=2.20.0              # HuggingFace Datasets — streaming + cached corpora
+huggingface-hub>=0.23.0       # Model / dataset registry access
+pandas>=2.2.0                 # Tabular data wrangling
+scipy>=1.13.0                 # Scientific utilities (stats, signal, sparse)
+
+# ------------------------------------------------------------
+# Reference Implementations & Fine-Tuning Helpers
+# ------------------------------------------------------------
+transformers>=4.42.0          # HuggingFace Transformers — reference & SFT utilities
+peft>=0.11.0                  # Parameter-Efficient Fine-Tuning (LoRA, QLoRA, etc.)
+trl>=0.9.0                    # Transformer RL — SFT, PPO, DPO, RLHF pipelines
+
+# ------------------------------------------------------------
+# Distributed Training & Efficiency
+# ------------------------------------------------------------
+accelerate>=0.31.0            # HuggingFace Accelerate — multi-GPU / mixed precision
+bitsandbytes>=0.43.0          # 8-bit / 4-bit quantisation (QLoRA)
+# deepspeed>=0.14.0           # (optional) ZeRO-2/3, pipeline parallelism — Linux only
+
+# ------------------------------------------------------------
+# Experiment Tracking & Visualisation
+# ------------------------------------------------------------
+wandb>=0.17.0                 # Weights & Biases — loss curves, gradients, evals
+tensorboard>=2.17.0           # TensorBoard — alternative / supplementary logging
+matplotlib>=3.9.0             # Plotting (attention maps, loss curves)
+
+# ------------------------------------------------------------
+# Configuration Management
+# ------------------------------------------------------------
+omegaconf>=2.3.0              # Structured YAML/dict config with interpolation
+hydra-core>=1.3.0             # Composable CLI + config system built on OmegaConf
+pyyaml>=6.0.1                 # Raw YAML parsing
+
+# ------------------------------------------------------------
+# Utilities
+# ------------------------------------------------------------
+tqdm>=4.66.0                  # Progress bars for training loops
+rich>=13.7.0                  # Pretty terminal output (logging, tables, tracebacks)
+regex>=2024.5.15              # Advanced regex (used internally by many tokenizers)
+
+# ------------------------------------------------------------
+# Testing & Code Quality
+# ------------------------------------------------------------
+pytest>=8.2.0                 # Unit testing
+pytest-cov>=5.0.0             # Coverage reports
+black>=24.4.0                 # Code formatter
+ruff>=0.4.0                   # Fast linter (replaces flake8/isort)

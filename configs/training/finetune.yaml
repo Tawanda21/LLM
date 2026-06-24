@@ -1,0 +1,42 @@
+# Fine-tuning configuration (SFT + LoRA)
+# Lower LR, smaller batch, shorter schedule than pre-training.
+
+max_steps: 2000
+batch_size: 4
+gradient_accumulation_steps: 8 # effective batch = 32 sequences
+
+# Optimiser — lower LR and weight_decay for fine-tuning
+lr: 2.0e-4
+weight_decay: 0.0 # usually 0 for LoRA (adapters are small enough)
+beta1: 0.9
+beta2: 0.999 # higher beta2 for fine-tuning stability
+eps: 1.0e-8
+grad_clip: 1.0
+
+# Schedule — shorter warmup
+warmup_steps: 50
+min_lr_ratio: 0.0
+
+# Logging
+log_every: 5
+eval_every: 100
+save_every: 500
+
+# Paths
+checkpoint_dir: checkpoints/finetune
+run_name: sft-lora-tinystories
+
+# Hardware
+mixed_precision: bf16
+
+# W&B
+use_wandb: false
+wandb_project: llm-from-scratch
+
+# LoRA hyperparameters
+lora_r: 8
+lora_alpha: 16 # scaling = alpha / r = 2.0
+lora_dropout: 0.05
+target_modules:
+  - wq
+  - wv

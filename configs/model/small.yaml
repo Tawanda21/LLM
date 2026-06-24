@@ -1,0 +1,11 @@
+# Small model — ~50 M parameters, trains on a single consumer GPU
+vocab_size: 32000
+dim: 512
+n_layers: 8
+n_heads: 8
+n_kv_heads: 4 # GQA: 2 Q heads per KV head
+max_seq_len: 2048
+multiple_of: 256 # FFN hidden dim rounded to this multiple
+dropout: 0.0
+norm_eps: 1.0e-6
+rope_theta: 10000.0
