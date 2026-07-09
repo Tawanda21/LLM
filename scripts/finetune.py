@@ -31,7 +31,7 @@ from src.finetuning.lora import (
     lora_param_count,
     save_lora,
 )
-from src.finetuning.sft import SFTDataset, make_tinystories_sft_examples
+from src.finetuning.sft import SFTDataset, format_story, make_tinystories_sft_examples
 from src.model import GPT
 from src.model.config import ModelConfig
 from src.tokenizer import BPETokenizer
@@ -93,7 +93,18 @@ def main() -> None:
     print(f"Tokenizer: {tokenizer}")
 
     # ── Model ─────────────────────────────────────────────────────────────────
-    model_cfg = ModelConfig(vocab_size=len(tokenizer))
+    demo_max_seq_len = min(args.max_seq_len, 256)
+    if args.demo:
+        model_cfg = ModelConfig(
+            vocab_size=len(tokenizer),
+            dim=128,
+            n_layers=2,
+            n_heads=4,
+            n_kv_heads=2,
+            max_seq_len=demo_max_seq_len,
+        )
+    else:
+        model_cfg = ModelConfig(vocab_size=len(tokenizer))
     model = GPT(model_cfg)
 
     if args.pretrain_ckpt and Path(args.pretrain_ckpt).exists():
@@ -128,7 +139,31 @@ def main() -> None:
     # ── Dataset ───────────────────────────────────────────────────────────────
     if args.demo or args.data_path is None:
         print("Using synthetic TinyStories SFT demo data...")
-        examples = make_tinystories_sft_examples(n=500)
+        if args.demo:
+            examples = [
+                {
+                    "topic": topic,
+                    "story": (
+                        "A small adventure began. "
+                        "They were kind, brave, and helped a friend. "
+                        "By evening, everyone was happy."
+                    ),
+                }
+                for topic in [
+                    "a rabbit",
+                    "a cloud",
+                    "a dragon",
+                    "a star",
+                    "a turtle",
+                    "a cat",
+                    "a bear",
+                    "a fish",
+                    "a robot",
+                    "a tree",
+                ]
+            ]
+        else:
+            examples = make_tinystories_sft_examples(n=500)
     else:
         print(f"Loading data from {args.data_path}")
         import json
@@ -141,7 +176,12 @@ def main() -> None:
                     examples.append(json.loads(line))
         print(f"  Loaded {len(examples):,} examples.")
 
-    dataset = SFTDataset(tokenizer, examples, max_seq_len=args.max_seq_len)
+    dataset = SFTDataset(
+        tokenizer,
+        examples,
+        max_seq_len=demo_max_seq_len if args.demo else args.max_seq_len,
+        format_fn=format_story if args.demo else None,
+    )
 
     # 90 / 10 train / val split
     n_val = max(1, len(dataset) // 10)

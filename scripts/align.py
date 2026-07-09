@@ -99,7 +99,7 @@ def run_dpo(args, tokenizer, device: str) -> None:
     print("\n=== DPO Alignment ===")
 
     # Policy and reference are both the SFT model
-    policy = load_model(args.sft_ckpt, tokenizer).to(device)
+    policy = load_model(args.sft_ckpt, tokenizer, device=device).to(device)
     reference = copy.deepcopy(policy)  # identical frozen copy
 
     # Preference dataset
@@ -133,7 +133,23 @@ def run_ppo(args, tokenizer, device: str) -> None:
     print("Step 1/2: Training reward model on preference data...")
 
     # Load SFT model as policy, reference, and RM backbone
-    sft_model = load_model(args.sft_ckpt, tokenizer).to(device)
+    if args.demo:
+        demo_cfg = ModelConfig(
+            vocab_size=len(tokenizer),
+            dim=128,
+            n_layers=2,
+            n_heads=4,
+            n_kv_heads=2,
+            max_seq_len=min(args.max_seq_len, 256),
+        )
+        sft_model = GPT(demo_cfg).to(device)
+        if args.sft_ckpt and Path(args.sft_ckpt).exists():
+            print(f"Loading model from {args.sft_ckpt}")
+            load_checkpoint(args.sft_ckpt, sft_model, device=device)
+        else:
+            print("No checkpoint found — using random weights (results will be poor).")
+    else:
+        sft_model = load_model(args.sft_ckpt, tokenizer, device=device).to(device)
     reference = copy.deepcopy(sft_model)
     policy = copy.deepcopy(sft_model)
 
@@ -142,11 +158,18 @@ def run_ppo(args, tokenizer, device: str) -> None:
     rm = RewardModel.from_pretrained(sft_model).to(device)
 
     rm_optimizer = build_adamw(rm, lr=1e-4)
-    rm_scheduler = cosine_with_warmup(rm_optimizer, warmup_steps=20, max_steps=200)
+    rm_train_steps = 20 if args.demo else 200
+    rm_scheduler = cosine_with_warmup(
+        rm_optimizer, warmup_steps=max(5, rm_train_steps // 4), max_steps=rm_train_steps
+    )
 
     from src.alignment.dpo_trainer import DPODataset
 
-    rm_dataset = DPODataset(tokenizer, examples, max_seq_len=args.max_seq_len)
+    rm_dataset = DPODataset(
+        tokenizer,
+        examples[:20] if args.demo else examples,
+        max_seq_len=min(args.max_seq_len, 256) if args.demo else args.max_seq_len,
+    )
     rm_loader = torch.utils.data.DataLoader(
         rm_dataset, batch_size=args.batch_size, shuffle=True
     )
@@ -154,7 +177,7 @@ def run_ppo(args, tokenizer, device: str) -> None:
     rm.train()
     rm_step = 0
     for batch in _cycle(rm_loader):
-        if rm_step >= 200:
+        if rm_step >= rm_train_steps:
             break
         chosen_ids = batch["chosen_input_ids"].to(device)
         rejected_ids = batch["rejected_input_ids"].to(device)
@@ -178,7 +201,7 @@ def run_ppo(args, tokenizer, device: str) -> None:
     # Build prompt list from examples
     print("\nStep 2/2: Running PPO...")
     prompts = []
-    for ex in examples[:50]:
+    for ex in (examples[:10] if args.demo else examples[:50]):
         prompt_ids = tokenizer.encode(ex["prompt"], add_special_tokens=False)
         prompts.append(
             torch.tensor([[tokenizer.bos_id] + prompt_ids], dtype=torch.long).to(device)
@@ -196,6 +219,7 @@ def run_ppo(args, tokenizer, device: str) -> None:
     trainer.train()
 
     out = Path(cfg.checkpoint_dir) / "ppo_final.pt"
+    out.parent.mkdir(parents=True, exist_ok=True)
     torch.save(policy.state_dict(), out)
     print(f"Aligned model saved → {out}")
 
@@ -205,7 +229,7 @@ def _load_or_synthetic(args) -> list:
         print("Using synthetic preference data...")
         from src.alignment.dpo_trainer import make_preference_examples
 
-        return make_preference_examples(n=200)
+        return make_preference_examples(n=20 if args.demo else 200)
     else:
         import json
 

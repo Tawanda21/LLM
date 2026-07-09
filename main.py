@@ -33,7 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     #   --num_examples int,   default=50_000
     #   --save_path    str,   default="checkpoints/tokenizer.json"
     tok.add_argument("--vocab_size", type=int, default=8_000)
-    tok.add_argument("--num_example", type=int, default=50_000)
+    tok.add_argument("--num_examples", type=int, default=50_000)
     tok.add_argument("--save_path", type=str, default="checkpoints/tokenizer.json")
 
     # ── pretrain subcommand ───────────────────────────────────────────────────
@@ -82,16 +82,7 @@ def main() -> None:
 
     # ── dispatch ──────────────────────────────────────────────────────────────
     if args.command == "tokenize":
-        # TODO ⑤ Import `main` from scripts.train_tokenizer and call it.
-        #   Hint: from scripts.train_tokenizer import main as tokenize_main
-        #   but sys.argv needs to match what that script expects.
-        #   Easiest approach: rebuild sys.argv from args, then call main().
-        from scripts.train_tokenizer import main as tokenize_main
-
-        tokenize_main()
-
-    elif args.command == "pretrain":
-        # Rebuild sys.argv for the train_tokenizer script using parsed args,
+        # Rebuild sys.argv for the tokenizer script using parsed args,
         # then delegate to its main() function.
         sys.argv = [
             "train_tokenizer.py",
